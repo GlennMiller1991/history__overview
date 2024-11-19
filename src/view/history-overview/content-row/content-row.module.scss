@@ -1,0 +1,14 @@
+.container {
+  padding: 0 0 0 78px;
+  position: relative;
+  height: max-content;
+}
+
+.marked {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 5px;
+  background: linear-gradient(#3877EE, #EF5DA8);
+}
