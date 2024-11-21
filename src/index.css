@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -12,4 +15,8 @@
 
 :root {
     --dark-primary: #42567A;
+    --history-font-family-primary: 'PT Sans', sans-serif;
+    --history-font-family-secondary: 'Bebas Neue', sans-serif;
+    --font-color-primary: var(--dark-primary);
+    --blue: #3877EE;
 }
