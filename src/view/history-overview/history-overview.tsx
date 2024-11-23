@@ -1,14 +1,14 @@
-import React, {useRef, useState} from "react";
+import React, {HTMLAttributes, useEffect, useRef, useState} from "react";
 import styles from './history-overview.module.scss'
-import {SidePaddingWrapper} from "./side-padding-wrapper/side-padding-wrapper";
-import {HeightPaddingWrapper} from "./height-padding-wrapper/height-padding-wrapper";
 import {Header} from "./header/header";
 import {ContentRow} from "./content-row/content-row";
 
-import {Arrow, Button, Space, SwiperControl} from "./swiper/swiper-control/swiper-control";
+import {Arrow, Button, Space} from "./swiper/swiper-control/swiper-control";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {Swiper as Slider} from 'swiper';
 import "swiper/css/bundle";
+import {Angle, AngleUnits} from "@fbltd/math";
+import classNames from "classnames";
 
 type IRange = [number, number]
 export type IHistoryEvent = {
@@ -29,7 +29,9 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
                                                                            title,
                                                                            items,
                                                                        }) => {
+    const transitionTime = 1000
     const [currentItemIndex, setCurrentItemIndex] = useState(0)
+    const [isTransition, setIsTransition] = useState(false)
     const [sliderRerender, setSliderRerender] = useState(true)
     const currentItem = items[currentItemIndex]
     const [swiper, setSwiper] = useState<Slider>(null)
@@ -37,6 +39,18 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
     function padStart(value: number) {
         return String(value).padStart(2, '0')
     }
+
+    const switchTransition = () => {
+        setIsTransition(true)
+    }
+
+    const switchCurrentIndex = (value: number) => {
+        switchTransition()
+        setCurrentItemIndex(value)
+    }
+
+    const angleCoef = (Math.PI * 2) / items.length
+    const activeAngle = Angle.toRad(-45, AngleUnits.Deg)
 
     return (
         <div className={styles.container} style={{opacity: Number(Boolean(swiper))}}>
@@ -49,74 +63,183 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
             </ContentRow>
 
 
-            <svg style={{position: 'absolute', width: '100%', aspectRatio: 1, left: '50%', top: '50%', transform: 'translate(-50%, -50%)'}} viewBox={'0 0 1 1'}>
-                <line x1={0} y1={0.5} x2={1} y2={0.5} stroke={'var(--dark-primary)'} strokeWidth={1} vectorEffect={'non-scaling-stroke'}/>
-                <line x1={0.5} y1={0} x2={0.5} y2={1} stroke={'var(--dark-primary)'} strokeWidth={1} vectorEffect={'non-scaling-stroke'}/>
-                <circle r={1 / 6} cx={0.5} cy={0.5} stroke={'var(--dark-primary)'} strokeWidth={1} vectorEffect={'non-scaling-stroke'} fill={'none'}/>
+            <svg style={{
+                position: 'absolute',
+                width: '100%',
+                aspectRatio: 1,
+                zIndex: -1,
+                pointerEvents: 'none',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+            }}>
+                <line x1={'0%'} y1={'50%'} x2={'100%'} y2={'50%'} stroke={'var(--dark-primary-transparent)'}
+                      strokeWidth={1} vectorEffect={'non-scaling-stroke'}/>
+                <line x1={'50%'} y1={'0%'} x2={'50%'} y2={'100%'} stroke={'var(--dark-primary-transparent)'}
+                      strokeWidth={1} vectorEffect={'non-scaling-stroke'}/>
+                <circle r={200} cx={'50%'} cy={'50%'} stroke={'var(--dark-primary-transparent)'} strokeWidth={1}
+                        vectorEffect={'non-scaling-stroke'} fill={'none'}/>
             </svg>
+            <div
+                onTransitionEnd={(event) => {
+                    if (event.target !== event.currentTarget) return
+                    setIsTransition(false)
+                }}
+                style={{
+                    position: 'absolute',
+                    width: '100%',
+                    aspectRatio: 1,
+                    left: '50%',
+                    top: '50%',
+                    pointerEvents: 'none',
+                    zIndex: 1,
+                    transition: `${transitionTime}ms`,
+                    transform: `translate(-50%, -50%) ${Angle.toCSS(angleCoef * currentItemIndex + activeAngle, AngleUnits.Rad)}`
+                }}>
+                {
+                    items.map((item, index) => {
+                        let angle = angleCoef * index
+                        const transform = `
+                        translate(-50%, -50%) 
+                        ${Angle.toCSS(-angle, AngleUnits.Rad)} 
+                        translateX(200px) 
+                        ${Angle.toCSS(angle, AngleUnits.Rad)}
+                        ${Angle.toCSS(-angleCoef * currentItemIndex, AngleUnits.Rad)}
+                        ${Angle.toCSS(-activeAngle, AngleUnits.Rad)}
+                        `
+                        const isActive = index === currentItemIndex
+                        return (
+                            <div style={{
+                                width: 'max-content',
+                                height: 'max-content',
+                                position: 'absolute',
+                                left: '50%',
+                                top: '50%',
+                                transition: `${transitionTime}ms`,
+                                pointerEvents: 'all',
+                                transform
+                            }}>
+                                <Button key={index} size={6}
+                                        widerEventsField={10}
+                                        className={classNames(
+                                            styles.button,
+                                            isActive && styles.activeButton,
+                                            !isActive && styles.inactiveColor,
+                                            (!isActive || isTransition) && styles.inactiveButton,
+                                        )}
+                                        onClick={() => switchCurrentIndex(index)}>
+                                    <span className={classNames(
+                                        styles.caption,
+                                        isActive && !isTransition && styles.activeCaption,
+                                    )}
+                                          style={{}}>
+                                        {
+                                            currentItem.title
+                                        }
+                                    </span>
+                                    {
+                                        index + 1
+                                    }
+                                </Button>
+                            </div>
+                        )
+                    })
+                }
+            </div>
+            <div style={{
+                position: 'absolute',
+                width: '100%',
+                aspectRatio: 1,
+                left: '50%',
+                top: '50%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transform: 'translate(-50%, -50%)',
+                pointerEvents: 'none',
+                zIndex: 0
+            }}>
+                <Space style={{
+                    fontSize: 200,
+                    fontWeight: 700,
+                    margin: '50%'
+                }}>
+                    <CalculatedText style={{color: 'var(--blue)'}} value={currentItem.range[0]} timer={transitionTime}/>
+                    <span style={{whiteSpace: 'pre'}}> </span>
+                    <CalculatedText style={{color: 'var(--red)'}} value={currentItem.range[1]} timer={transitionTime}/>
+                </Space>
+            </div>
 
-
-            {/*<Space gap={80} style={{*/}
-            {/*    marginTop: 96,*/}
-            {/*    marginBottom: 137,*/}
-            {/*    width: '100%',*/}
-            {/*    fontSize: 200,*/}
-            {/*    fontWeight: 700*/}
-            {/*}}>*/}
-            {/*    <span style={{color: 'var(--blue)'}}>*/}
-            {/*        {*/}
-            {/*            currentItem.range[0]*/}
-            {/*        }*/}
-            {/*    </span>*/}
-
-            {/*    <span style={{color: 'red'}}>*/}
-            {/*        {*/}
-            {/*            currentItem.range[1]*/}
-            {/*        }*/}
-            {/*    </span>*/}
-            {/*</Space>*/}
             <ContentRow>
-                <span>{padStart(currentItemIndex + 1)}/{padStart(items.length + 1)}</span>
-                <SwiperControl/>
+                <Space direction={'column'} gap={56}>
+                    <Space direction={'column'} gap={20} style={{marginBottom: 20}}>
+                        <span>{padStart(currentItemIndex + 1)}/{padStart(items.length)}</span>
+                        <Space gap={20}>
+                            <Button size={50} disabled={!currentItemIndex} onClick={() => {
+                                switchCurrentIndex(Math.max(currentItemIndex - 1, 0))
+                            }}>
+                                <Arrow angle={180}/>
+                            </Button>
+                            <Button size={50} disabled={currentItemIndex === items.length - 1} onClick={() => {
+                                switchCurrentIndex(Math.min(currentItemIndex + 1, items.length - 1))
+                            }}>
+                                <Arrow angle={0}/>
+                            </Button>
+                        </Space>
+                    </Space>
 
-                <div style={{flexGrow: 1, position: 'relative', overflow: 'hidden', height: 135}}>
-                    {
-                        !swiper?.isBeginning &&
-                        <Button size={50} style={{position: "absolute", left: '10px', zIndex: 2}}
-                                onClick={() => swiper.slidePrev()}>
-                            <Arrow angle={180}/>
-                        </Button>
-                    }
-                    <Swiper
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                        }}
-                        grabCursor={true}
-                        slidesPerView={3}
-                        onSlideChange={() => setSliderRerender(!sliderRerender)}
-                        onSwiper={setSwiper}>
+                    <DisappearedContent style={{flexGrow: 1, position: 'relative', height: 135, width: '100%'}}>
                         {
-                            currentItem.events.map((element, index) => {
-                                return (
-                                    <SwiperSlide key={`${currentItemIndex} ${index}`}>
-                                        <Slide title={String(element.year)}
-                                               description={element.description}
-                                        />
-                                    </SwiperSlide>
-                                )
-                            })
+                            !swiper?.isBeginning &&
+                            <Button size={50} style={{
+                                position: "absolute",
+                                left: 0,
+                                top: '50%',
+                                transform: 'translate(-100%, -50%)',
+                                zIndex: 2
+                            }}
+                                    onClick={() => swiper.slidePrev()}>
+                                <Arrow angle={180}/>
+                            </Button>
                         }
-                    </Swiper>
-                    {
-                        !swiper?.isEnd &&
-                        <Button size={50} style={{position: "absolute", right: '10px', zIndex: 2}}
-                                onClick={() => swiper.slideNext()}>
-                            <Arrow/>
-                        </Button>
-                    }
-                </div>
+                        <Swiper
+                            style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                            }}
+                            grabCursor={true}
+                            slidesPerView={3}
+                            onSlideChange={() => setSliderRerender(!sliderRerender)}
+                            onSwiper={setSwiper}>
+                            {
+                                currentItem.events.map((element, index) => {
+                                    return (
+                                        <SwiperSlide key={`${currentItemIndex} ${index}`}>
+                                            <Slide title={String(element.year)}
+                                                   description={element.description}
+                                            />
+                                        </SwiperSlide>
+                                    )
+                                })
+                            }
+                        </Swiper>
+                        {
+                            !swiper?.isEnd &&
+                            <Button size={50}
+                                    style={{
+                                        position: "absolute",
+                                        transform: 'translate(100%, -50%)',
+                                        top: '50%',
+                                        right: 0,
+                                        zIndex: 2
+                                    }}
+                                    onClick={() => swiper.slideNext()}>
+                                <Arrow/>
+                            </Button>
+                        }
+                    </DisappearedContent>
+                </Space>
             </ContentRow>
         </div>
     )
@@ -146,6 +269,66 @@ export const Slide: React.FC<ISlide> = React.memo(({
                 fontSize: 25
             }}>{title}</div>
             <div>{description}</div>
+        </div>
+    )
+})
+
+type ICalculatedText = {
+    value: number,
+    timer: number,
+} & React.DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>
+export const CalculatedText: React.FC<ICalculatedText> = React.memo(({
+                                                                         value,
+                                                                         timer,
+                                                                         ...props
+                                                                     }) => {
+
+    const [rerender, setRerender] = useState(false)
+    const state = useRef({
+        currentValue: value,
+    })
+
+    useEffect(() => {
+        if (value === state.current.currentValue) return
+
+        const dif = value - state.current.currentValue
+        const tId = setInterval(() => {
+            if (state.current.currentValue === value) {
+                clearInterval(tId)
+                return
+            }
+            state.current.currentValue = Math.round(state.current.currentValue + Math.sign(dif))
+            setRerender(prev => !prev)
+        }, timer / Math.abs(dif)) as unknown as number
+
+        return () => clearInterval(tId)
+    }, [value])
+
+    return (
+        <span style={{color: 'var(--blue)'}} {...props}>{state.current.currentValue}</span>
+    )
+})
+
+type IDisappearedContent = {} & React.DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+export const DisappearedContent: React.FC<React.PropsWithChildren<IDisappearedContent>> = React.memo(({
+                                                                                                          children,
+                                                                                                          ...props
+                                                                                                      }) => {
+
+    const [rerender, setRerender] = useState(false)
+    const ref = useRef(null)
+
+    useEffect(() => {
+        setTimeout(() => {
+            setRerender(true)
+        }, 1000)
+    }, [children])
+
+    return (
+        <div ref={ref} {...props}>
+            {
+                children
+            }
         </div>
     )
 })

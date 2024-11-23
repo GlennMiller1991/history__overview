@@ -15,8 +15,11 @@
 
 :root {
     --dark-primary: #42567A;
+    --dark-primary-transparent: rgba(66, 86, 122, 0.1);
+    --light-primary: rgb(242, 242, 247);
     --history-font-family-primary: 'PT Sans', sans-serif;
     --history-font-family-secondary: 'Bebas Neue', sans-serif;
     --font-color-primary: var(--dark-primary);
     --blue: #3877EE;
+    --red: red
 }

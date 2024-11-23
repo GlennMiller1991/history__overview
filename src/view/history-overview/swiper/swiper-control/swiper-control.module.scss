@@ -2,3 +2,35 @@
   width: 120px;
   height: 88px;
 }
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  position: relative;
+  outline: none;
+  cursor: pointer;
+  transition: 200ms ease-out;
+  border: 1px solid var(--dark-primary-transparent);
+  background: var(--light-primary);
+
+  &:not(&:disabled) {
+    border: 1px solid var(--dark-primary);
+
+    &:hover {
+      background: white;
+    }
+  }
+
+  & > div:first-child {
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+}
+
+.eventsField {
+  position: absolute;
+  clip-path: circle(50%);
+}

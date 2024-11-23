@@ -1,18 +1,7 @@
-import React, {HTMLAttributes} from "react";
+import React, {ButtonHTMLAttributes, HTMLAttributes} from "react";
 import {Angle, AngleUnits} from "@fbltd/math";
-
-export const SwiperControl: React.FC = React.memo(() => {
-    return (
-        <Space gap={20}>
-            <Button size={50}>
-                <Arrow angle={180}/>
-            </Button>
-            <Button size={50}>
-                <Arrow angle={0}/>
-            </Button>
-        </Space>
-    )
-})
+import styles from './swiper-control.module.scss'
+import classNames from "classnames";
 
 type IArrow = {
     angle?: number,
@@ -31,52 +20,73 @@ export const Arrow: React.FC<IArrow> = React.memo(({
 })
 
 type IButton = {
-    size: number | string
-} & HTMLAttributes<HTMLButtonElement>
+    size: number | string,
+    widerEventsField?: number | string,
+} & React.DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>
 export const Button: React.FC<React.PropsWithChildren<IButton>> = React.memo(({
                                                                                   children,
                                                                                   size,
+                                                                                  widerEventsField,
                                                                                   style = {},
+                                                                                  className,
                                                                                   ...props
                                                                               }) => {
     return (
         <button style={{
             width: size,
             height: size,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            border: '1px solid blue',
-            borderRadius: '50%',
-            outline: 'none',
-            cursor: 'pointer',
             ...style
         }}
+                className={classNames(styles.button, className)}
+
                 {...props}>
+            <div>
             {
                 children
+            }
+            </div>
+
+            {
+                widerEventsField &&
+                <div
+                    style={{
+                        inset: typeof widerEventsField === 'number' ? widerEventsField * -1 :
+                            widerEventsField.startsWith('-') ? widerEventsField.slice(1) : ('-' + String(widerEventsField))
+                    }}
+                    className={styles.eventsField}>
+
+                </div>
             }
         </button>
     )
 })
 
 type ISpace = {
-    gap?: number | string
+    gap?: number | string,
+    direction?: 'column' | 'row'
 } & HTMLAttributes<HTMLDivElement>
 export const Space: React.FC<React.PropsWithChildren<ISpace>> = React.memo(({
                                                                                 children,
                                                                                 gap = 0,
+                                                                                direction = 'row',
                                                                                 style = {},
                                                                                 ...props
                                                                             }) => {
 
     style = {
-        ...{display: 'flex', justifyContent: 'center', alignItems: 'center', gap, width: 'max-content'},
+        ...{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            gap,
+            width: '100%',
+            flexDirection: direction
+        },
         ...style
     }
 
     return (
-        <div style={style}>
+        <div style={style} {...props}>
             {
                 children
             }
