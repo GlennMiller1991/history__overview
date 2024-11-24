@@ -1,24 +1,27 @@
 @import '../_shared/styles/mixins';
 
 .container {
-  font-family: var(--history-font-family-primary), 'sans-serif' !important;
-  color: var(--font-color-primary);
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  margin: 0 auto;
-  max-width: 100%;
+  margin: 0 8% 0 16%;
+  aspect-ratio: 4/ 3;
+  border: 1px solid var(--ho__dark-primary-transparent);
+  border-bottom: none;
+  border-top: none;
+}
+
+.content {
+  font-family: var(--ho__font-family-primary), 'sans-serif' !important;
+  color: var(--ho__font-color-primary);
+  transition: opacity 500ms;
+  @include flex(space-between, unset, column);
   max-height: 100%;
   width: 1440px;
   aspect-ratio: calc(1 / 1.33);
-  padding: 170px 0 104px 0;
-  overflow: hidden;
+  transform-origin: left top;
+  padding: 170px 0 104px;
 }
 
-
 .button {
-  color: var(--dark-primary);
+  color: var(--ho__dark-primary);
   font-size: 20px;
   font-weight: 400;
 
@@ -50,3 +53,31 @@
     height: 50px !important;
   }
 }
+
+
+.disappearedContent {
+  transition-delay: 100ms;
+  height: 135px;
+  width: 100%;
+}
+
+.swiperBtn {
+  position: absolute !important;
+  top: 50%;
+
+  &.right {
+    transform: translate(100%, -50%);
+    right: 0;
+  }
+
+  &.left {
+    left: 0;
+    transform: translate(-100%, -50%);
+  }
+}
+
+.swiper {
+  left: 0;
+  right: 0;
+}
+

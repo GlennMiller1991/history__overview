@@ -1,0 +1,18 @@
+.container {
+  min-width: 200px;
+  max-width: 400px;
+  height: 135px;
+  display: flex;
+  flex-direction: column;
+
+  *:first-child {
+    font-family: var(--ho__font-family-secondary);
+    color: var(--ho__blue);
+    font-size: 25px;
+  }
+
+    *:last-child {
+        flex-grow: 1;
+        overflow-y: scroll;
+    }
+}

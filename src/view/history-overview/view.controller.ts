@@ -12,6 +12,11 @@ export class ViewController {
     isInited: boolean = false
     forceRenderFlag = 0
 
+    dom!: HTMLDivElement
+    ro!: ResizeObserver
+    containerId = 'history-overview_container'
+    fullWidth = 1440
+
     get historyItem() {
         return this.historyItems[this.historyIndex]
     }
@@ -33,13 +38,16 @@ export class ViewController {
             setIsInited: action,
         })
 
-        this.init()
-
     }
 
-    async init() {
-        if (!this.historyItems.length) throw new Error('По условию ТЗ')
+    init = async (dom: HTMLDivElement | null) => {
+        if (!dom) return
+        if (!this.historyItems.length) return
+        if (this.isInited) return
+
+        this.dom = dom
         await this.fontLoading()
+        this.setRO()
         this.setIsInited(true)
     }
 
@@ -55,6 +63,16 @@ export class ViewController {
                 .then((res) => !res.some(loaded => !loaded))
                 .catch((err) => false)
         )
+    }
+
+    private setRO() {
+        this.ro = new ResizeObserver(() => {
+            const rect = this.dom.getBoundingClientRect()
+            const dif = rect.width / this.fullWidth;
+            (this.dom.firstElementChild as HTMLElement).style.transform = `scale(${dif})`;
+        })
+
+        this.ro.observe(this.dom)
     }
 
     setHistoryIndex = (index: number) => {
@@ -93,6 +111,14 @@ export class ViewController {
         this.setIsTransition(false)
     }
 
+    onSlideNext = () => {
+        this.swiper?.slideNext()
+    }
+
+    onSlidePrev = () => {
+        this.swiper?.slidePrev()
+    }
+
     get state() {
         return {
             isInited: this.isInited && !!this.swiper,
@@ -100,5 +126,9 @@ export class ViewController {
             swiper: this.swiper,
             historyIndex: this.historyIndex,
         }
+    }
+
+    dispose = () => {
+        this.ro.disconnect()
     }
 }

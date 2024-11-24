@@ -1,16 +1,30 @@
+@import './mixins';
+
 :root {
-  --dark-primary: #42567A;
-  --dark-primary-transparent: rgba(66, 86, 122, 0.1);
-  --light-primary: rgb(242, 242, 247);
-  --history-font-family-primary: 'PT Sans', sans-serif;
-  --history-font-family-secondary: 'Bebas Neue', sans-serif;
-  --font-color-primary: var(--dark-primary);
-  --blue: #3877EE;
-  --red: #fd00a7
+  --ho__dark-primary: #42567A;
+  --ho__dark-primary-transparent: rgba(66, 86, 122, 0.1);
+  --ho__light-primary: rgb(242, 242, 247);
+  --ho__font-family-primary: 'PT Sans', sans-serif;
+  --ho__font-family-secondary: 'Bebas Neue', sans-serif;
+  --ho__font-color-primary: var(--ho__dark-primary);
+  --ho__blue: #3877EE;
+  --ho__red: #fd00a7
+}
+
+:global(.flex-center) {
+  @include flex(center, center, row, unset);
+}
+
+:global(.flex-grow-max) {
+  @include flex(center, center, row, 1);
 }
 
 :global(.position-abs) {
   position: absolute;
+}
+
+:global(.position-rel) {
+  position: relative;
 }
 
 :global(.sizes-parent) {
@@ -21,8 +35,8 @@
 }
 
 :global(.sizes-content) {
-  width: max-content;
-  height: max-content;
+  width: max-content !important;
+  height: max-content !important;
 }
 
 :global(.skipEvents) {
@@ -46,6 +60,10 @@
   top: 50%;
 }
 
+:global(.transform-50-percent) {
+  transform: translate(-50%, -50%);
+}
+
 :global(.scroll-hidden::-webkit-scrollbar) {
   display: none;
 }
@@ -54,4 +72,26 @@
   :global(.zi-#{$i}) {
     z-index: #{$i}
   }
+}
+
+:global(.ar-1) {
+  aspect-ratio: 1
+}
+
+:global(.ar-4-3) {
+  aspect-ratio: 4/3;
+}
+
+@for $i from 1 through 7 {
+  :global(.font-weight-#{$i}00) {
+    font-weight: #{$i}00;
+  }
+}
+
+:global(.fs-20) {
+  font-size: 20px;
+}
+
+:global(.fs-200) {
+  font-size: 200px;
 }

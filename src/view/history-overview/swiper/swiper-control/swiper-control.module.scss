@@ -12,11 +12,11 @@
   outline: none;
   cursor: pointer;
   transition: 200ms ease-out;
-  border: 1px solid var(--dark-primary-transparent);
-  background: var(--light-primary);
+  border: 1px solid var(--ho__dark-primary-transparent);
+  background: var(--ho__light-primary);
 
   &:not(&:disabled) {
-    border: 1px solid var(--dark-primary);
+    border: 1px solid var(--ho__dark-primary);
 
     &:hover {
       background: white;

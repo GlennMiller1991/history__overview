@@ -10,7 +10,7 @@ export const CalculatedText: React.FC<ICalculatedText> = React.memo(({
                                                                          ...props
                                                                      }) => {
 
-    const [rerender, setRerender] = useState(false)
+    const [, setRerender] = useState(false)
     const state = useRef({
         currentValue: value,
     })
@@ -32,6 +32,6 @@ export const CalculatedText: React.FC<ICalculatedText> = React.memo(({
     }, [value])
 
     return (
-        <span style={{color: 'var(--blue)'}} {...props}>{state.current.currentValue}</span>
+        <span {...props}>{state.current.currentValue}</span>
     )
 })

@@ -1,22 +1,20 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import '../_shared/styles/global.module.scss'
-
 import styles from './history-overview.module.scss'
+
 import {Header} from "./header/header";
 import {ContentRow} from "./content-row/content-row";
-
-import {Arrow, Button, Space} from "./swiper/swiper-control/swiper-control";
-import {Swiper, SwiperSlide} from "swiper/react";
+import {Space} from "./swiper/swiper-control/swiper-control";
 import "swiper/css/bundle";
 import classNames from "classnames";
 import {observer} from "mobx-react-lite";
 import {IHistoryOverview} from "./contracts";
 import {ViewController} from "./view.controller";
 import {DisappearedContent} from "./_shared/components/disappeared-content";
-import {CalculatedText} from "./calculated-text";
-import {Slide} from "./slide";
 import {HistoryItemControl} from "./history-item-control";
 import {Carousel} from "./carousel";
+import {HistoryItemCalculatedText} from "./history-item-calculated-text";
+import {HistorySwiper} from "./history-swiper";
 
 
 export const HistoryOverview: React.FC<IHistoryOverview> = observer(({
@@ -25,123 +23,63 @@ export const HistoryOverview: React.FC<IHistoryOverview> = observer(({
                                                                      }) => {
 
     const [controller] = useState(() => new ViewController(items))
-    const {isInited, swiper, historyIndex} = controller.state;
+    const {isInited, historyIndex, } = controller.state;
 
+
+    useEffect(() => controller.dispose, [controller])
 
     return (
-        <div className={classNames('tr500', styles.container)}
-             style={{opacity: Number(isInited)}}
-        >
-            <ContentRow mark>
-                <Header>
-                    {
-                        title
-                    }
-                </Header>
-            </ContentRow>
-
-            <Carousel controller={controller}/>
-
-
-            <div style={{
-                position: 'absolute',
-                width: '100%',
-                aspectRatio: 1,
-                left: '50%',
-                top: '50%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                transform: 'translate(-50%, -50%)',
-                pointerEvents: 'none',
-                zIndex: 0
-            }}>
-                <Space style={{
-                    fontSize: 200,
-                    fontWeight: 700,
-                    margin: '50%'
-                }}>
-                    <CalculatedText style={{color: 'var(--blue)'}} value={controller.historyItem.range[0]}
-                                    timer={controller.transitionTime}/>
-                    <span style={{whiteSpace: 'pre'}}> </span>
-                    <CalculatedText style={{color: 'var(--red)'}} value={controller.historyItem.range[1]}
-                                    timer={controller.transitionTime}/>
-                </Space>
-            </div>
-
-            <ContentRow>
-                <Space direction={'column'} gap={56}>
-                    <HistoryItemControl current={historyIndex} total={items.length}
-                                        onChange={controller.changeHistoryIndex}
-                    />
-                    <DisappearedContent flag={controller.isTransition}
-                                        gapTime={500}
-                                        style={{
-                                            transition: `500ms`,
-                                            transitionDelay: '100ms',
-                                            opacity: Number(!controller.isTransition),
-                                            flexGrow: 1,
-                                            position: 'relative',
-                                            height: 135,
-                                            width: '100%'
-                                        }}>
+        <div ref={controller.init}
+             id={controller.containerId}
+             className={styles.container}
+             style={{maxWidth: controller.fullWidth}}>
+            <div
+                className={classNames(styles.content, 'position-abs')}
+                style={{opacity: Number(isInited)}}>
+                <ContentRow mark>
+                    <Header>
                         {
-                            controller.isTransition ? null :
-                                <>
-                                    {
-                                        swiper && !swiper.isBeginning &&
-                                        <Button size={50} style={{
-                                            position: "absolute",
-                                            left: 0,
-                                            top: '50%',
-                                            transform: 'translate(-100%, -50%)',
-                                            zIndex: 2
-                                        }}
-                                                onClick={() => swiper.slidePrev()}>
-                                            <Arrow angle={180}/>
-                                        </Button>
-                                    }
-                                    <Swiper key={controller.historyIndex}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                            }}
-                                            grabCursor={true}
-                                            slidesPerView={3}
-                                            onSlideChange={controller.forceRerender}
-                                            onSwiper={controller.setSwiper}>
-                                        {
-                                            controller.historyItem.events.map((element, index) => {
-                                                return (
-                                                    <SwiperSlide key={`${controller.historyIndex} ${index}`}>
-                                                        <Slide title={String(element.year)}
-                                                               description={element.description}
-                                                        />
-                                                    </SwiperSlide>
-                                                )
-                                            })
-                                        }
-                                    </Swiper>
-                                    {
-                                        swiper && !swiper.isEnd &&
-                                        <Button size={50}
-                                                style={{
-                                                    position: "absolute",
-                                                    transform: 'translate(100%, -50%)',
-                                                    top: '50%',
-                                                    right: 0,
-                                                    zIndex: 2
-                                                }}
-                                                onClick={() => swiper.slideNext()}>
-                                            <Arrow/>
-                                        </Button>
-                                    }
-                                </>
+                            title
                         }
-                    </DisappearedContent>
-                </Space>
-            </ContentRow>
+                    </Header>
+                </ContentRow>
+
+                <Carousel controller={controller}/>
+
+
+                <div className={classNames(
+                    'sizes-parent',
+                    'halfParent',
+                    'zi-0',
+                    'skipEvents',
+                    'transform-50-percent',
+                    'ar-1',
+                    'font-weight-700',
+                    'flex-center',
+                    'fs-200',
+                )}>
+                    <HistoryItemCalculatedText controller={controller}/>
+                </div>
+
+                <ContentRow>
+                    <Space direction={'column'} gap={56}>
+                        <HistoryItemControl current={historyIndex} total={items.length}
+                                            onChange={controller.changeHistoryIndex}
+                        />
+                        <DisappearedContent flag={controller.isTransition}
+                                            gapTime={500}
+                                            className={classNames(
+                                                'tr500',
+                                                'flex-grow-max',
+                                                'position-rel',
+                                                styles.disappearedContent
+                                            )}
+                                            style={{opacity: Number(!controller.isTransition)}}>
+                            <HistorySwiper controller={controller}/>
+                        </DisappearedContent>
+                    </Space>
+                </ContentRow>
+            </div>
         </div>
     )
 })
