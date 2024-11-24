@@ -1,7 +1,7 @@
-@import '../_shared/mixins';
+@import '../_shared/styles/mixins';
 
 .container {
-  font-family: var(--history-font-family-primary), 'sans-serif';
+  font-family: var(--history-font-family-primary), 'sans-serif' !important;
   color: var(--font-color-primary);
   position: relative;
   display: flex;

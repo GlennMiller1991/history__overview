@@ -1,0 +1,57 @@
+:root {
+  --dark-primary: #42567A;
+  --dark-primary-transparent: rgba(66, 86, 122, 0.1);
+  --light-primary: rgb(242, 242, 247);
+  --history-font-family-primary: 'PT Sans', sans-serif;
+  --history-font-family-secondary: 'Bebas Neue', sans-serif;
+  --font-color-primary: var(--dark-primary);
+  --blue: #3877EE;
+  --red: #fd00a7
+}
+
+:global(.position-abs) {
+  position: absolute;
+}
+
+:global(.sizes-parent) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+:global(.sizes-content) {
+  width: max-content;
+  height: max-content;
+}
+
+:global(.skipEvents) {
+  pointer-events: none;
+}
+
+:global(.trackEvents) {
+  pointer-events: all;
+}
+
+:global(.tr500) {
+  transition: 500ms;
+}
+
+:global(.tr1000) {
+  transition: 1000ms;
+}
+
+:global(.halfParent) {
+  left: 50%;
+  top: 50%;
+}
+
+:global(.scroll-hidden::-webkit-scrollbar) {
+  display: none;
+}
+
+@for $i from 0 through 5 {
+  :global(.zi-#{$i}) {
+    z-index: #{$i}
+  }
+}
