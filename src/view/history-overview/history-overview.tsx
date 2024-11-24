@@ -9,6 +9,8 @@ import {Swiper as Slider} from 'swiper';
 import "swiper/css/bundle";
 import {Angle, AngleUnits} from "@fbltd/math";
 import classNames from "classnames";
+import {observer} from "mobx-react-lite";
+import {action, makeObservable} from "mobx";
 
 type IRange = [number, number]
 export type IHistoryEvent = {
@@ -25,35 +27,88 @@ type IHistoryOverview = {
     title: React.JSX.Element,
     items: Array<IHistoryItem>
 }
-export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
-                                                                           title,
-                                                                           items,
-                                                                       }) => {
-    const transitionTime = 1000
-    const [currentItemIndex, setCurrentItemIndex] = useState(0)
-    const [isTransition, setIsTransition] = useState(false)
-    const [sliderRerender, setSliderRerender] = useState(true)
-    const currentItem = items[currentItemIndex]
-    const [swiper, setSwiper] = useState<Slider>(null)
+
+export class ViewController {
+    transitionTime = 1000 //ms
+    historyIndex: number = 0
+    isTransition: boolean = false
+    swiper: Slider | undefined = undefined
+    forceRenderFlag = 0
+
+    get historyItem() {
+        return this.historyItems[this.historyIndex]
+    }
+
+    constructor(public historyItems: IHistoryItem[]) {
+        makeObservable(this, {
+            historyIndex: true,
+            isTransition: true,
+            swiper: true,
+            forceRenderFlag: true,
+
+            setHistoryIndex: action,
+            setIsTransition: action,
+            setSwiper: action,
+            forceRerender: action,
+        })
+        this.init()
+    }
+
+    init() {
+        if (!this.historyItems.length) throw new Error('По условию ТЗ')
+    }
+
+    setHistoryIndex = (index: number) => {
+        this.historyIndex = index
+    }
+
+    setIsTransition = (value: boolean) => {
+        this.isTransition = value
+    }
+
+    changeHistoryIndex = (index: number) => {
+        if (index === this.historyIndex) return
+        this.setHistoryIndex(index)
+        this.setIsTransition(true)
+    }
+
+    setSwiper = (swiper: Slider) => {
+        this.swiper = swiper
+    }
+
+    forceRerender = () => {
+        this.forceRenderFlag++
+    }
+
+    get state() {
+        return {
+            isReady: !!this.swiper,
+            renderFlag: this.forceRenderFlag,
+            swiper: this.swiper,
+
+        }
+    }
+}
+
+
+export const HistoryOverview: React.FC<IHistoryOverview> = observer(({
+                                                                         title,
+                                                                         items,
+                                                                     }) => {
+
+    const [controller] = useState(() => new ViewController(items))
+    const {isReady, swiper} = controller.state;
 
     function padStart(value: number) {
         return String(value).padStart(2, '0')
     }
 
-    const switchTransition = () => {
-        setIsTransition(true)
-    }
-
-    const switchCurrentIndex = (value: number) => {
-        switchTransition()
-        setCurrentItemIndex(value)
-    }
 
     const angleCoef = (Math.PI * 2) / items.length
     const activeAngle = Angle.toRad(-45, AngleUnits.Deg)
 
     return (
-        <div className={styles.container} style={{opacity: Number(Boolean(swiper))}}>
+        <div className={styles.container} style={{opacity: Number(isReady)}}>
             <ContentRow mark>
                 <Header>
                     {
@@ -83,7 +138,7 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
             <div
                 onTransitionEnd={(event) => {
                     if (event.target !== event.currentTarget) return
-                    setIsTransition(false)
+                    controller.setIsTransition(false)
                 }}
                 style={{
                     position: 'absolute',
@@ -93,8 +148,8 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
                     top: '50%',
                     pointerEvents: 'none',
                     zIndex: 1,
-                    transition: `${transitionTime}ms`,
-                    transform: `translate(-50%, -50%) ${Angle.toCSS(angleCoef * currentItemIndex + activeAngle, AngleUnits.Rad)}`
+                    transition: `${controller.transitionTime}ms`,
+                    transform: `translate(-50%, -50%) ${Angle.toCSS(angleCoef * controller.historyIndex + activeAngle, AngleUnits.Rad)}`
                 }}>
                 {
                     items.map((item, index) => {
@@ -104,10 +159,10 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
                         ${Angle.toCSS(-angle, AngleUnits.Rad)} 
                         translateX(200px) 
                         ${Angle.toCSS(angle, AngleUnits.Rad)}
-                        ${Angle.toCSS(-angleCoef * currentItemIndex, AngleUnits.Rad)}
+                        ${Angle.toCSS(-angleCoef * controller.historyIndex, AngleUnits.Rad)}
                         ${Angle.toCSS(-activeAngle, AngleUnits.Rad)}
                         `
-                        const isActive = index === currentItemIndex
+                        const isActive = index === controller.historyIndex
                         return (
                             <div style={{
                                 width: 'max-content',
@@ -115,7 +170,7 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
                                 position: 'absolute',
                                 left: '50%',
                                 top: '50%',
-                                transition: `${transitionTime}ms`,
+                                transition: `${controller.transitionTime}ms`,
                                 pointerEvents: 'all',
                                 transform
                             }}>
@@ -125,16 +180,16 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
                                             styles.button,
                                             isActive && styles.activeButton,
                                             !isActive && styles.inactiveColor,
-                                            (!isActive || isTransition) && styles.inactiveButton,
+                                            (!isActive || controller.isTransition) && styles.inactiveButton,
                                         )}
-                                        onClick={() => switchCurrentIndex(index)}>
+                                        onClick={() => controller.changeHistoryIndex(index)}>
                                     <span className={classNames(
                                         styles.caption,
-                                        isActive && !isTransition && styles.activeCaption,
+                                        isActive && !controller.isTransition && styles.activeCaption,
                                     )}
                                           style={{}}>
                                         {
-                                            currentItem.title
+                                            controller.historyItem.title
                                         }
                                     </span>
                                     {
@@ -164,79 +219,96 @@ export const HistoryOverview: React.FC<IHistoryOverview> = React.memo(({
                     fontWeight: 700,
                     margin: '50%'
                 }}>
-                    <CalculatedText style={{color: 'var(--blue)'}} value={currentItem.range[0]} timer={transitionTime}/>
+                    <CalculatedText style={{color: 'var(--blue)'}} value={controller.historyItem.range[0]}
+                                    timer={controller.transitionTime}/>
                     <span style={{whiteSpace: 'pre'}}> </span>
-                    <CalculatedText style={{color: 'var(--red)'}} value={currentItem.range[1]} timer={transitionTime}/>
+                    <CalculatedText style={{color: 'var(--red)'}} value={controller.historyItem.range[1]}
+                                    timer={controller.transitionTime}/>
                 </Space>
             </div>
 
             <ContentRow>
                 <Space direction={'column'} gap={56}>
                     <Space direction={'column'} gap={20} style={{marginBottom: 20}}>
-                        <span>{padStart(currentItemIndex + 1)}/{padStart(items.length)}</span>
+                        <span>{padStart(controller.historyIndex + 1)}/{padStart(items.length)}</span>
                         <Space gap={20}>
-                            <Button size={50} disabled={!currentItemIndex} onClick={() => {
-                                switchCurrentIndex(Math.max(currentItemIndex - 1, 0))
+                            <Button size={50} disabled={!controller.historyIndex} onClick={() => {
+                                controller.changeHistoryIndex(Math.max(controller.historyIndex - 1, 0))
                             }}>
                                 <Arrow angle={180}/>
                             </Button>
-                            <Button size={50} disabled={currentItemIndex === items.length - 1} onClick={() => {
-                                switchCurrentIndex(Math.min(currentItemIndex + 1, items.length - 1))
+                            <Button size={50} disabled={controller.historyIndex === items.length - 1} onClick={() => {
+                                controller.changeHistoryIndex(Math.min(controller.historyIndex + 1, items.length - 1))
                             }}>
                                 <Arrow angle={0}/>
                             </Button>
                         </Space>
                     </Space>
 
-                    <DisappearedContent style={{flexGrow: 1, position: 'relative', height: 135, width: '100%'}}>
+                    <DisappearedContent flag={controller.isTransition}
+                                        gapTime={500}
+                                        style={{
+                                            transition: `500ms`,
+                                            transitionDelay: '100ms',
+                                            opacity: Number(!controller.isTransition),
+                                            flexGrow: 1,
+                                            position: 'relative',
+                                            height: 135,
+                                            width: '100%'
+                                        }}>
                         {
-                            !swiper?.isBeginning &&
-                            <Button size={50} style={{
-                                position: "absolute",
-                                left: 0,
-                                top: '50%',
-                                transform: 'translate(-100%, -50%)',
-                                zIndex: 2
-                            }}
-                                    onClick={() => swiper.slidePrev()}>
-                                <Arrow angle={180}/>
-                            </Button>
-                        }
-                        <Swiper
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                            }}
-                            grabCursor={true}
-                            slidesPerView={3}
-                            onSlideChange={() => setSliderRerender(!sliderRerender)}
-                            onSwiper={setSwiper}>
-                            {
-                                currentItem.events.map((element, index) => {
-                                    return (
-                                        <SwiperSlide key={`${currentItemIndex} ${index}`}>
-                                            <Slide title={String(element.year)}
-                                                   description={element.description}
-                                            />
-                                        </SwiperSlide>
-                                    )
-                                })
-                            }
-                        </Swiper>
-                        {
-                            !swiper?.isEnd &&
-                            <Button size={50}
-                                    style={{
-                                        position: "absolute",
-                                        transform: 'translate(100%, -50%)',
-                                        top: '50%',
-                                        right: 0,
-                                        zIndex: 2
-                                    }}
-                                    onClick={() => swiper.slideNext()}>
-                                <Arrow/>
-                            </Button>
+                            controller.isTransition ? null :
+                                <>
+                                    {
+                                        controller.swiper && !controller.swiper.isBeginning &&
+                                        <Button size={50} style={{
+                                            position: "absolute",
+                                            left: 0,
+                                            top: '50%',
+                                            transform: 'translate(-100%, -50%)',
+                                            zIndex: 2
+                                        }}
+                                                onClick={() => controller.swiper.slidePrev()}>
+                                            <Arrow angle={180}/>
+                                        </Button>
+                                    }
+                                    <Swiper
+                                        style={{
+                                            position: 'absolute',
+                                            left: 0,
+                                            right: 0,
+                                        }}
+                                        grabCursor={true}
+                                        slidesPerView={3}
+                                        onSlideChange={controller.forceRerender}
+                                        onSwiper={controller.setSwiper}>
+                                        {
+                                            controller.historyItem.events.map((element, index) => {
+                                                return (
+                                                    <SwiperSlide key={`${controller.historyIndex} ${index}`}>
+                                                        <Slide title={String(element.year)}
+                                                               description={element.description}
+                                                        />
+                                                    </SwiperSlide>
+                                                )
+                                            })
+                                        }
+                                    </Swiper>
+                                    {
+                                        controller.swiper && !controller.swiper.isEnd &&
+                                        <Button size={50}
+                                                style={{
+                                                    position: "absolute",
+                                                    transform: 'translate(100%, -50%)',
+                                                    top: '50%',
+                                                    right: 0,
+                                                    zIndex: 2
+                                                }}
+                                                onClick={() => controller.swiper.slideNext()}>
+                                            <Arrow/>
+                                        </Button>
+                                    }
+                                </>
                         }
                     </DisappearedContent>
                 </Space>
@@ -309,26 +381,48 @@ export const CalculatedText: React.FC<ICalculatedText> = React.memo(({
     )
 })
 
-type IDisappearedContent = {} & React.DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+type IDisappearedContent = {
+    flag: any,
+    gapTime?: number,
+} & React.DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 export const DisappearedContent: React.FC<React.PropsWithChildren<IDisappearedContent>> = React.memo(({
                                                                                                           children,
+                                                                                                          flag,
+                                                                                                          gapTime = 0,
                                                                                                           ...props
                                                                                                       }) => {
 
-    const [rerender, setRerender] = useState(false)
-    const ref = useRef(null)
+
+    const [state, setState] = useState({
+        children,
+        isTransition: false,
+    })
+    const ref = useRef<number | null>(null)
 
     useEffect(() => {
-        setTimeout(() => {
-            setRerender(true)
-        }, 1000)
-    }, [children])
+        ref.current && clearTimeout(ref.current)
+        ref.current = null
+        setState(prev => ({...prev, isTransition: false}))
+
+
+        if (!flag) {
+            return setState(prev => ({...prev, children}))
+        }
+
+        setState(prev => ({...prev, isTransition: true}))
+        ref.current = setTimeout(() => {
+            setState({children, isTransition: false})
+        }, gapTime) as unknown as number
+    }, [flag, children])
+
 
     return (
-        <div ref={ref} {...props}>
+        <div {...props}>
             {
-                children
+                state.children
             }
         </div>
     )
+}, (prev, next) => {
+    return prev.flag === next.flag && prev.children === next.children
 })
