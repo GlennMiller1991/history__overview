@@ -4,17 +4,17 @@ import styles from './history-overview.module.scss'
 
 import {Header} from "./header/header";
 import {ContentRow} from "./content-row/content-row";
-import {Space} from "./swiper/swiper-control/swiper-control";
 import "swiper/css/bundle";
 import classNames from "classnames";
 import {observer} from "mobx-react-lite";
 import {IHistoryOverview} from "./contracts";
 import {ViewController} from "./view.controller";
-import {DisappearedContent} from "./_shared/components/disappeared-content";
+import {DisappearedContent} from "./disappeared-content";
 import {HistoryItemControl} from "./history-item-control";
 import {Carousel} from "./carousel";
 import {HistoryItemCalculatedText} from "./history-item-calculated-text";
 import {HistorySwiper} from "./history-swiper";
+import {Space} from "./swiper-control/swiper-control";
 
 
 export const HistoryOverview: React.FC<IHistoryOverview> = observer(({

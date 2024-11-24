@@ -1,7 +1,7 @@
 import React from "react";
 import {ViewController} from "./view.controller";
 import {observer} from "mobx-react-lite";
-import {Space} from "./swiper/swiper-control/swiper-control";
+import {Space} from "./swiper-control/swiper-control";
 import {CalculatedText} from "./calculated-text";
 
 export const HistoryItemCalculatedText: React.FC<{ controller: ViewController }> = observer(({

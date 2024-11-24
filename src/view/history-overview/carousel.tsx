@@ -3,7 +3,7 @@ import React, {TransitionEventHandler} from "react";
 import {observer} from "mobx-react-lite";
 import {Angle, AngleUnits} from "@fbltd/math";
 import classNames from "classnames";
-import {Button} from "./swiper/swiper-control/swiper-control";
+import {Button} from "./swiper-control/swiper-control";
 import styles from "./history-overview.module.scss";
 
 type ICarousel = {

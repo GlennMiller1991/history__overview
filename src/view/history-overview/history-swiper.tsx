@@ -1,7 +1,7 @@
 import React from "react";
 import {ViewController} from "./view.controller";
 import {observer} from "mobx-react-lite";
-import {Arrow, Button} from "./swiper/swiper-control/swiper-control";
+import {Arrow, Button} from "./swiper-control/swiper-control";
 import classNames from "classnames";
 import styles from "./history-overview.module.scss";
 import {Swiper, SwiperSlide} from "swiper/react";

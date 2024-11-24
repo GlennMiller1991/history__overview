@@ -1,5 +1,5 @@
 import React from "react";
-import {Arrow, Button, Space} from "./swiper/swiper-control/swiper-control";
+import {Arrow, Button, Space} from "./swiper-control/swiper-control";
 import {leadZeros} from "./utils";
 
 type IHistoryItemControl = {
