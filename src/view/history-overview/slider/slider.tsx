@@ -1,15 +1,17 @@
 import React from "react";
-import {ViewController} from "./view.controller";
+import {ViewController} from "../view.controller";
 import {observer} from "mobx-react-lite";
-import {Arrow, Button} from "./swiper-control/swiper-control";
+import {Arrow} from "../_shared/_components/arrow/arrow";
 import classNames from "classnames";
-import styles from "./history-overview.module.scss";
+import styles from "./slider.module.scss";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {Slide} from "./slide/slide";
 import "swiper/css/bundle";
+import {Button} from "../_shared/_components/button/button";
 
 
-export const HistorySwiper: React.FC<{ controller: ViewController }> = observer(({
+
+export const Slider: React.FC<{ controller: ViewController }> = observer(({
                                                                                      controller,
                                                                                  }) => {
 

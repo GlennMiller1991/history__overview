@@ -1,0 +1,42 @@
+.bg {
+  * {
+    stroke: var(--ho__dark-primary-transparent);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+    fill: none;
+  }
+}
+
+.button {
+  color: var(--ho__dark-primary);
+  font-size: 20px;
+  font-weight: 400;
+
+  .caption {
+    transition: 200ms ease-out;
+    opacity: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    left: 100%;
+    position: absolute;
+    pointer-events: none;
+    white-space: nowrap;
+    transform: translateX(20px);
+    font-weight: 700;
+
+    &.activeCaption {
+      opacity: 1;
+    }
+  }
+
+  &.inactiveColor:not(:hover) {
+    background: #42567A !important;
+  }
+
+  &.activeButton, &:hover {
+    width: 50px !important;
+    height: 50px !important;
+  }
+}

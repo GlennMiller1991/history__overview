@@ -1,4 +1,4 @@
-@import '../_shared/styles/mixins';
+@import '_shared/_styles/mixins';
 
 .container {
   margin: 0 8% 0 16%;
@@ -20,64 +20,10 @@
   padding: 170px 0 104px;
 }
 
-.button {
-  color: var(--ho__dark-primary);
-  font-size: 20px;
-  font-weight: 400;
-
-  .caption {
-    transition: 200ms ease-out;
-    opacity: 0;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    left: 100%;
-    position: absolute;
-    pointer-events: none;
-    white-space: nowrap;
-    transform: translateX(20px);
-    font-weight: 700;
-
-    &.activeCaption {
-      opacity: 1;
-    }
-  }
-
-  &.inactiveColor:not(:hover) {
-    background: #42567A !important;
-  }
-
-  &.activeButton, &:hover {
-    width: 50px !important;
-    height: 50px !important;
-  }
-}
-
 
 .disappearedContent {
   transition-delay: 100ms;
   height: 135px;
   width: 100%;
-}
-
-.swiperBtn {
-  position: absolute !important;
-  top: 50%;
-
-  &.right {
-    transform: translate(100%, -50%);
-    right: 0;
-  }
-
-  &.left {
-    left: 0;
-    transform: translate(-100%, -50%);
-  }
-}
-
-.swiper {
-  left: 0;
-  right: 0;
 }
 

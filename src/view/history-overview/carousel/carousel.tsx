@@ -1,10 +1,10 @@
-import {ViewController} from "./view.controller";
+import {ViewController} from "../view.controller";
 import React, {TransitionEventHandler} from "react";
 import {observer} from "mobx-react-lite";
 import {Angle, AngleUnits} from "@fbltd/math";
 import classNames from "classnames";
-import {Button} from "./swiper-control/swiper-control";
-import styles from "./history-overview.module.scss";
+import styles from "./carousel.module.scss";
+import {Button} from "../_shared/_components/button/button";
 
 type ICarousel = {
     controller: ViewController,
@@ -18,13 +18,10 @@ export const Carousel: React.FC<ICarousel> = observer(({controller}) => {
 
     return (
         <>
-            <svg className={classNames('sizes-parent', 'skipEvents', 'zi-0')}>
-                <line x1={'0%'} y1={'50%'} x2={'100%'} y2={'50%'} stroke={'var(--dark-primary-transparent)'}
-                      strokeWidth={1} vectorEffect={'non-scaling-stroke'}/>
-                <line x1={'50%'} y1={'0%'} x2={'50%'} y2={'100%'} stroke={'var(--dark-primary-transparent)'}
-                      strokeWidth={1} vectorEffect={'non-scaling-stroke'}/>
-                <circle r={200} cx={'50%'} cy={'50%'} stroke={'var(--dark-primary-transparent)'} strokeWidth={1}
-                        vectorEffect={'non-scaling-stroke'} fill={'none'}/>
+            <svg className={classNames('sizes-parent', 'skipEvents', 'zi-0', styles.bg)}>
+                <line x1={'0%'} y1={'50%'} x2={'100%'} y2={'50%'}/>
+                <line x1={'50%'} y1={'0%'} x2={'50%'} y2={'100%'}/>
+                <circle r={200} cx={'50%'} cy={'50%'}/>
             </svg>
             <div
                 onTransitionEnd={controller.onTransitionEnd as unknown as TransitionEventHandler}
@@ -57,7 +54,6 @@ export const Carousel: React.FC<ICarousel> = observer(({controller}) => {
                                             styles.button,
                                             isActive && styles.activeButton,
                                             !isActive && styles.inactiveColor,
-                                            (!isActive || controller.isTransition) && styles.inactiveButton,
                                         )}
                                         onClick={() => controller.changeHistoryIndex(index)}>
                                     <span className={classNames(

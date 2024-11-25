@@ -1,0 +1,19 @@
+.swiperBtn {
+  position: absolute !important;
+  top: 50%;
+
+  &.right {
+    transform: translate(100%, -50%);
+    right: 0;
+  }
+
+  &.left {
+    left: 0;
+    transform: translate(-100%, -50%);
+  }
+}
+
+.swiper {
+  left: 0;
+  right: 0;
+}

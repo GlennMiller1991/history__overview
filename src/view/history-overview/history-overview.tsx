@@ -1,20 +1,21 @@
 import React, {useEffect, useState} from "react";
-import '../_shared/styles/global.module.scss'
+import './_shared/_styles/global.module.scss'
 import styles from './history-overview.module.scss'
 
 import {Header} from "./header/header";
-import {ContentRow} from "./content-row/content-row";
+import {ContentRow} from "./_shared/_components/content-row/content-row";
 import "swiper/css/bundle";
 import classNames from "classnames";
 import {observer} from "mobx-react-lite";
 import {IHistoryOverview} from "./contracts";
 import {ViewController} from "./view.controller";
-import {DisappearedContent} from "./disappeared-content";
-import {HistoryItemControl} from "./history-item-control";
-import {Carousel} from "./carousel";
-import {HistoryItemCalculatedText} from "./history-item-calculated-text";
-import {HistorySwiper} from "./history-swiper";
-import {Space} from "./swiper-control/swiper-control";
+import {DisappearedContent} from "./_shared/_components/disappeared-content";
+import {Carousel} from "./carousel/carousel";
+import {HistoryItemCalculatedText} from "./history-item-calculated-text/history-item-calculated-text";
+import {Slider} from "./slider/slider";
+
+import {Space} from "./_shared/_components/space/space";
+import {CarouselControl} from "./carousel-control/carousel-control";
 
 
 export const HistoryOverview: React.FC<IHistoryOverview> = observer(({
@@ -63,8 +64,8 @@ export const HistoryOverview: React.FC<IHistoryOverview> = observer(({
 
                 <ContentRow>
                     <Space direction={'column'} gap={56}>
-                        <HistoryItemControl current={historyIndex} total={items.length}
-                                            onChange={controller.changeHistoryIndex}
+                        <CarouselControl current={historyIndex} total={items.length}
+                                         onChange={controller.changeHistoryIndex}
                         />
                         <DisappearedContent flag={controller.isTransition}
                                             gapTime={500}
@@ -75,7 +76,7 @@ export const HistoryOverview: React.FC<IHistoryOverview> = observer(({
                                                 styles.disappearedContent
                                             )}
                                             style={{opacity: Number(!controller.isTransition)}}>
-                            <HistorySwiper controller={controller}/>
+                            <Slider controller={controller}/>
                         </DisappearedContent>
                     </Space>
                 </ContentRow>

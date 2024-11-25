@@ -1,17 +1,19 @@
 import React from "react";
-import {Arrow, Button, Space} from "./swiper-control/swiper-control";
-import {leadZeros} from "./utils";
+import {Space} from "../_shared/_components/space/space";
+import {leadZeros} from "../utils";
+import {Button} from "../_shared/_components/button/button";
+import {Arrow} from "../_shared/_components/arrow/arrow";
 
-type IHistoryItemControl = {
+type ICarouselControl = {
     current: number,
     total: number,
     onChange: (index: number) => void,
 }
-export const HistoryItemControl: React.FC<IHistoryItemControl> = React.memo(({
-                                                                                 current,
-                                                                                 total,
-                                                                                 onChange,
-                                                                             }) => {
+export const CarouselControl: React.FC<ICarouselControl> = React.memo(({
+                                                                           current,
+                                                                           total,
+                                                                           onChange,
+                                                                       }) => {
 
     return (
         <Space direction={'column'} gap={20} style={{marginBottom: 20}}>
