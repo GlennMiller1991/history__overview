@@ -15,19 +15,23 @@ export const Carousel: React.FC<ICarousel> = observer(({controller}) => {
     const current = controller.historyIndex
     const angleCoef = (Math.PI * 2) / total
     const activeAngle = Angle.toRad(-45, AngleUnits.Deg)
+    const centerOffset = -60
+    const translateCenter = `translateY(${centerOffset}px)`
 
     return (
         <>
             <svg className={classNames('sizes-parent', 'skipEvents', 'zi-0', styles.bg)}>
-                <line x1={'0%'} y1={'50%'} x2={'100%'} y2={'50%'}/>
-                <line x1={'50%'} y1={'0%'} x2={'50%'} y2={'100%'}/>
-                <circle r={200} cx={'50%'} cy={'50%'}/>
+                <g>
+                    <line x1={'0%'} y1={'50%'} x2={'100%'} y2={'50%'} style={{transform: translateCenter}}/>
+                    <line x1={'50%'} y1={'0%'} x2={'50%'} y2={'100%'}/>
+                    <circle r={265} cx={'50%'} cy={'50%'} style={{transform: translateCenter}}/>
+                </g>
             </svg>
             <div
                 onTransitionEnd={controller.onTransitionEnd as unknown as TransitionEventHandler}
                 className={classNames('sizes-parent', 'tr1000', 'zi-2', 'skipEvents', 'halfParent')}
                 style={{
-                    transform: `translate(-50%, -50%) ${Angle.toCSS(angleCoef * current + activeAngle, AngleUnits.Rad)}`
+                    transform: `${translateCenter} translate(-50%, -50%) ${Angle.toCSS(angleCoef * current + activeAngle, AngleUnits.Rad)}`
                 }}>
                 {
                     controller.historyItems.map((item, index) => {
@@ -35,7 +39,7 @@ export const Carousel: React.FC<ICarousel> = observer(({controller}) => {
                         const transform = `
                         translate(-50%, -50%) 
                         ${Angle.toCSS(-angle, AngleUnits.Rad)} 
-                        translateX(200px) 
+                        translateX(265px) 
                         ${Angle.toCSS(angle, AngleUnits.Rad)}
                         ${Angle.toCSS(-angleCoef * current, AngleUnits.Rad)}
                         ${Angle.toCSS(-activeAngle, AngleUnits.Rad)}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {HistoryOverview} from "./history-overview/history-overview";
 import {IHistoryItem} from "./history-overview/contracts";
 
@@ -21,9 +21,12 @@ const historyItems: IHistoryItem[] = new Array(5).fill(undefined).map((entry, in
 })
 
 function App() {
+    const [data, setData] = useState(historyItems)
+
+
     return (
         <HistoryOverview title={<>Исторические<br/>даты</>}
-                         items={historyItems}
+                         items={data}
         />
     );
 }
